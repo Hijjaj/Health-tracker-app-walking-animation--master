@@ -17,8 +17,12 @@ import 'provider/botton_nav_bar.dart';
 import 'screen/1.dart';
 import 'widget/botton_bar.dart';
 
+/// Ini adalah titik masuk utama untuk aplikasi Flutter.
+/// Ini membuat widget [MyApp] dan menjalankan aplikasi.
 void main() => runApp(MyApp());
 
+/// Widget aplikasi Flutter utama. Ini menyiapkan penyedia (provider)
+/// untuk manajemen state dan menginisialisasi aplikasi dengan widget MaterialApp.
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -29,6 +33,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         builder: (ctx, child) {
+          // Menginisialisasi utilitas layar untuk desain responsif.
           ScreenUtil.init(ctx, designSize: const Size(390, 844));
           return Theme(
             data: ThemeData(
@@ -42,6 +47,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
+/// Widget halaman utama untuk Flutter.
 class MyHomePage extends StatefulWidget {
   const MyHomePage({
     Key? key,
@@ -60,11 +66,13 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isOnline = false;
   bool wasPlaying = false;
 
+  /// Fungsi panggilan kembali ketika urutan gambar offline siap untuk diputar.
   void onOfflineReadyToPlay(ImageSequenceAnimatorState imageSequenceAnimator) {
     offlineImageSequenceAnimator = imageSequenceAnimator;
     imageSequenceAnimator.setIsLooping(true);
   }
 
+  /// Fungsi panggilan kembali ketika urutan gambar offline sedang diputar.
   void onOfflinePlaying(ImageSequenceAnimatorState imageSequenceAnimator) {
     scheduleMicrotask(() {
       setState(() {});
@@ -75,6 +83,8 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: 0);
+
+    // Menambahkan pendengar ke pengendali halaman untuk memperbarui pengawas halaman.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _pageController.addListener(() =>
           Provider.of<PageNotifier>(context, listen: false)
@@ -85,6 +95,8 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
+    // Memproses pra-pencahayaan gambar untuk animasi berjalan.
     for (int i = 0; i <= 38; i++) {
       String path = "assets/walking-animtaion/frame_00";
       if (i / 10 < 1) {
@@ -100,6 +112,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void dispose() {
+    // Menghapus pendengar dari pengendali halaman dan membuangnya.
     _pageController.removeListener(
         Provider.of<PageNotifier>(context, listen: false)
             .listener(_pageController.page!));
@@ -113,6 +126,7 @@ class _MyHomePageState extends State<MyHomePage> {
     TopLeftStat2(),
     SizedBox(),
   ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -151,8 +165,6 @@ class _MyHomePageState extends State<MyHomePage> {
             Consumer<PageNotifier>(builder: (context, provider, _) {
               int index = provider.page.floor();
               final t = (provider.page.floor() - provider.page);
-              // print(
-              //     "t : $t index: ${provider.page.floor()} page : ${provider.page}");
               Offset s1 = Offset(40.w, 50.h);
               Offset s2 = Offset(0.w, 60.h);
               Offset s3 = Offset(0.w, 180.h);
@@ -175,9 +187,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 lerpDouble(s2.dy, s3.dy, t.abs())!)
                             : Offset(lerpDouble(s1.dx, s2.dx, t.abs())!,
                                 lerpDouble(s1.dy, s2.dy, t.abs())!),
-                    // offset: Offset(0.w, 60.h),
                     child: SizedBox(
-                      // scale of the man
                       height: index == 2
                           ? manScale2.height
                           : index == 1
@@ -190,8 +200,6 @@ class _MyHomePageState extends State<MyHomePage> {
                               ? lerpDouble(
                                   manScale1.width, manScale2.width, t.abs())
                               : manScale1.width,
-
-                      // child: Image.asset("assets/temp.png"),
                       child: ImageSequenceAnimator(
                         "assets/walking-animtaion",
                         "frame_",
@@ -206,7 +214,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     ),
                   ),
-                  // Last Scree
                   provider.page > 1
                       ? Transform.translate(
                           offset: index == 2
@@ -215,35 +222,25 @@ class _MyHomePageState extends State<MyHomePage> {
                           child: const ThreeScreen(),
                         )
                       : const SizedBox()
-                  // provider.page > 1
-                  //     ? Transform.translate(
-                  //         offset: Offset(lerpDouble(a, b, t.abs()),
-                  //             lerpDouble(a, b, t.abs())),
-                  //         child: ThreeScreen())
-                  //     : Container(
-                  //         // Overlay deactivated
-                  //         height: 0,
-                  //         width: 0,
-                  //       ),
                 ],
               );
             }),
           ],
         );
       }),
-      // body: ThreeScreen(),
     );
   }
 }
 
+/// Widget yang mewakili kubus dengan animasi.
 class CubeWidget extends StatelessWidget {
-  /// Index of the current item
+  /// Indeks item saat ini
   final int index;
 
-  /// Page Notifier value, it comes from the [CubeWidgetBuilder]
+  /// Nilai Pengawas Halaman, diperoleh dari [CubeWidgetBuilder]
   final double pageNotifier;
 
-  /// Child you want to use inside the Cube
+  /// Widget anak yang ingin Anda gunakan di dalam Kubus
   final Widget child;
 
   const CubeWidget({
@@ -270,5 +267,8 @@ class CubeWidget extends StatelessWidget {
   }
 }
 
+/// Mengonversi derajat menjadi radian.
 double degToRad(num deg) => deg * (pi / 180.0);
+
+/// Mengonversi radian menjadi derajat.
 double radToDeg(num rad) => rad * (180.0 / pi);
